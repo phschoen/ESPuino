@@ -1,11 +1,11 @@
-#ifndef __ESPUINO_SETTINGS_LOLIN_D32_H__
-#define __ESPUINO_SETTINGS_LOLIN_D32_H__
+#ifndef __ESPUINO_SETTINGS_BREAKOUT_CARRIER_H__
+#define __ESPUINO_SETTINGS_BREAKOUT_CARRIER_H__
     #include <Arduino.h>
 
     //######################### INFOS ####################################
     /* This is a develboard-specific config-file for *Wemos Lolin D32*. Specific doesn't mean it's only working with this board.
     Lolin D32 is the successor of Lolin32 and the "little brother" of Wemos Lolin D32 pro.
-    PCB: https://github.com/biologist79/ESPuino/tree/master/PCBs/Wemos%20Lolin%20D32
+    PCB: https://github.com/biologist79/ESPuino/tree/master/PCBs/ESP32_Breakout_Carrier
     Infos: https://www.wemos.cc/en/latest/d32/d32.html
     Schematics: https://www.wemos.cc/en/latest/_static/files/sch_d32_v1.0.0.pdf
     Caveats: GPIO35 (battery monitoring) can't be changed, it's built in
@@ -22,9 +22,9 @@
         // uSD-card-reader (via SD-MMC 1Bit)
         //
         // SD_MMC uses fixed pins
-        //  (MOSI)    15  CMD
-        //  (SCK)     14  SCK
-        //  (MISO)     2  D0
+        //  MOSI    15
+        //  SCK     14
+        //  MISO    2
     #else
         // uSD-card-reader (via SPI)
         #define SPISD_CS                    15          // GPIO for chip select (SD)
@@ -38,7 +38,7 @@
     // RFID (via SPI)
     #define RST_PIN                         99          // Not necessary but has to be set anyway; so let's use a dummy-number
     #define RFID_CS                         21          // GPIO for chip select (RFID)
-    #define RFID_MOSI                       23          // GPIO for master out slave in (RFID)
+    #define RFID_MOSI                       24          // GPIO for master out slave in (RFID)
     #define RFID_MISO                       19          // GPIO for master in slave out (RFID)
     #define RFID_SCK                        18          // GPIO for clock-signal (RFID)
 
@@ -54,19 +54,18 @@
 
     // Rotary encoder
     #ifdef USEROTARY_ENABLE
-        #define ROTARYENCODER_CLK           34          // If you want to reverse encoder's direction, just switch GPIOs of CLK with DT (in software or hardware)
-        #define ROTARYENCODER_DT            33          // Info: Lolin D32 is using 35 for battery-voltage-monitoring!
-        #define ROTARYENCODER_BUTTON        32          // (set to 99 to disable; 0->39 for GPIO; 100->115 for port-expander)
+        #define ROTARYENCODER_CLK             34          // If you want to reverse encoder's direction, just switch GPIOs of CLK with DT (in software or hardware)
+        #define ROTARYENCODER_DT              35          // Info: Lolin D32 is using 35 for battery-voltage-monitoring!
+        #define ROTARYENCODER_BUTTON          32          // (set to 99 to disable; 0->39 for GPIO; 100->115 for port-expander)
     #endif
 
-    // Amp enable (optional)
+// Control-buttons (set to 99 to DISABLE; 0->39 for GPIO; 100->115 for port-expander)
     //#define GPIO_PA_EN                      112         // To enable amp for loudspeaker (GPIO or port-channel)
     //#define GPIO_HP_EN                      113         // To enable amp for headphones (GPIO or port-channel)
-
     // Control-buttons (set to 99 to DISABLE; 0->39 for GPIO; 100->115 for port-expander)
-    #define NEXT_BUTTON                      4          // Button 0: GPIO to detect next
-    #define PREVIOUS_BUTTON                  2          // Button 1: GPIO to detect previous (Important: as of 19.11.2020 changed from 33 to 2; make sure to change in SD-MMC-mode)
-    #define PAUSEPLAY_BUTTON                 5          // Button 2: GPIO to detect pause/play
+    #define NEXT_BUTTON                      5          // Button 0: GPIO to detect next
+    #define PREVIOUS_BUTTON                 33          // Button 1: GPIO to detect previous (Important: as of 19.11.2020 changed from 33 to 2; make sure to change in SD-MMC-mode)
+    #define PAUSEPLAY_BUTTON                 4          // Button 2: GPIO to detect pause/play
     #define BUTTON_4                        99          // Button 4: unnamed optional button
     #define BUTTON_5                        99          // Button 5: unnamed optional button
 
@@ -77,15 +76,15 @@
     #endif
 
     // I2C-configuration (necessary for RC522 [only via i2c - not spi!] or port-expander)
-    #if defined(RFID_READER_TYPE_MFRC522_I2C) || defined(PORT_EXPANDER_ENABLE)
-        #define ext_IIC_CLK                 5           // i2c-SCL (clock)
-        #define ext_IIC_DATA                2           // i2c-SDA (data)
+    #if defined(RFID_READER_TYPE_MFRC522_I2C) || defined(PORT_EXPANDER_ENABLE) || defined(MPU6050_ENABLE)
+        #define ext_IIC_CLK                 18           // i2c-SCL (clock)
+        #define ext_IIC_DATA                21           // i2c-SDA (data)
     #endif
 
     // Wake-up button => this also is the interrupt-pin if port-expander is enabled!
     // Please note: only RTC-GPIOs (0, 4, 12, 13, 14, 15, 25, 26, 27, 32, 33, 34, 35, 36, 39, 99) can be used! Set to 99 to DISABLE.
     // Please note #2: this button can be used as interrupt-pin for port-expander. If so, all pins connected to port-expander can wake up ESPuino.
-    #define WAKEUP_BUTTON                   ROTARYENCODER_BUTTON // Defines the button that is used to wake up ESPuino from deepsleep.
+    #define WAKEUP_BUTTON                   PREVIOUS_BUTTON// Defines the button that is used to wake up ESPuino from deepsleep.
 
     // (optional) Power-control
     #define POWER                           17          // GPIO used to drive transistor-circuit, that switches off peripheral devices while ESP32-deepsleep
@@ -101,7 +100,7 @@
 
     // (optional) Monitoring of battery-voltage via ADC
     #ifdef MEASURE_BATTERY_VOLTAGE
-        #define VOLTAGE_READ_PIN            35          // Cannot be changed, it's built in
+        #define VOLTAGE_READ_PIN            36          // Cannot be changed, it's built in
         constexpr float referenceVoltage = 3.30;                  // Voltage between 3.3V and GND-pin at the develboard in battery-mode (disconnect USB!)
         constexpr float offsetVoltage = 0.2;                      // If voltage measured by ESP isn't 100% accurate, you can add an correction-value here
     #endif
